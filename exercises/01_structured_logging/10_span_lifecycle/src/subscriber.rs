@@ -7,7 +7,7 @@ pub fn init_test_subscriber() -> MockWriter {
     tracing_subscriber::fmt()
         .with_writer(move || writer2.clone())
         // We want to see a log record for each span lifecycle stage.
-        .with_span_events(FmtSpan::FULL)
+        .with_span_events(FmtSpan::CLOSE | FmtSpan::NEW | FmtSpan::ENTER | FmtSpan::EXIT)
         .json()
         .flatten_event(true)
         .init();

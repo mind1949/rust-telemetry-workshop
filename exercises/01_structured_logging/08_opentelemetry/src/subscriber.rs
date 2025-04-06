@@ -1,5 +1,6 @@
 use opentelemetry::trace::TracerProvider;
 use opentelemetry::KeyValue;
+use opentelemetry_otlp::Protocol;
 use opentelemetry_otlp::WithExportConfig;
 use opentelemetry_sdk::trace::Tracer;
 use opentelemetry_sdk::{runtime, Resource};
@@ -24,6 +25,12 @@ pub fn init_tracer() -> Tracer {
     let mut map = MetadataMap::with_capacity(1);
     map.insert("x-honeycomb-team", honeycomb_key.try_into().unwrap());
 
+    let expoter = opentelemetry_otlp::new_exporter()
+        .tonic()
+        .with_endpoint("https://api.honeycomb.io:443")
+        .with_timeout(std::time::Duration::from_secs(5))
+        .with_protocol(Protocol::Grpc)
+        .with_metadata(map);
     // Correctly configuring your exporter is a bit of a black art and highly-dependent on the
     // specifics of your deployment environment.
     // We won't go into the details here, but you can read more about it in the OpenTelemetry
@@ -38,13 +45,7 @@ pub fn init_tracer() -> Tracer {
                 "rust-telemetry-workshop",
             )]),
         ))
-        .with_exporter(
-            opentelemetry_otlp::new_exporter()
-                .tonic()
-                .with_endpoint("https://api.honeycomb.io/api/traces")
-                .with_timeout(std::time::Duration::from_secs(5))
-                .with_metadata(map),
-        )
+        .with_exporter(expoter)
         .install_batch(runtime::Tokio)
         .unwrap()
         .tracer("rust-telemetry-workshop")

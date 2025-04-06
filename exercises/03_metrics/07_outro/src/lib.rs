@@ -8,6 +8,9 @@ mod tests {
 
     #[test]
     fn the_end() {
-        assert_eq!(affirmation(), "I know how to instrument my Rust applications!")
+        assert_eq!(
+            affirmation(),
+            "I know how to instrument my Rust applications!"
+        )
     }
 }

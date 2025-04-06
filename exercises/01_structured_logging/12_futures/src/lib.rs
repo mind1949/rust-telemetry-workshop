@@ -19,6 +19,8 @@ pub async fn do_something(id: u16) {
 
 #[cfg(test)]
 mod tests {
+    use tracing::Instrument;
+
     use super::init_test_subscriber;
     use crate::do_something;
 
@@ -36,7 +38,7 @@ mod tests {
             let future = do_something(i);
             let span = tracing::info_span!("Task", caller_id = tracing::field::Empty);
             // TODO: attach the span to the future!
-            join_set.spawn(future);
+            join_set.spawn(future.instrument(span));
         }
         // Let's wait for all tasks to complete.
         while let Some(_) = join_set.join_next().await {}

@@ -1,3 +1,5 @@
+use metrics_exporter_prometheus;
+
 pub fn do_something(i: u64) {
     let label_value = if i % 2 == 0 { "even" } else { "odd" };
     metrics::counter!("invocations", "type" => label_value).increment(1)
@@ -17,7 +19,10 @@ mod tests {
             .install_default()
             .unwrap();
 
-        todo!()
+        metrics_exporter_prometheus::PrometheusBuilder::new()
+            .with_http_listener(socket_addr)
+            .install()
+            .unwrap();
     }
 
     #[test]

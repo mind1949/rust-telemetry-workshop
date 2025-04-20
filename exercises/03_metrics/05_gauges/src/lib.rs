@@ -3,17 +3,21 @@ pub struct Balance(i64);
 impl Balance {
     pub fn new() -> Self {
         // TODO: register a `balance` metric
+        let _ = metrics::gauge!("balance");
+        metrics::describe_gauge!("balance", metrics::Unit::Count, "The current balance");
         Self(0)
     }
 
     pub fn increment(&mut self, by: u32) {
         self.0 += by as i64;
         // TODO: record the new balance value
+        metrics::gauge!("balance").increment(by);
     }
 
     pub fn decrement(&mut self, by: u32) {
         self.0 -= by as i64;
         // TODO: record the new balance value
+        metrics::gauge!("balance").decrement(by);
     }
 }
 
